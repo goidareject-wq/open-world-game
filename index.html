@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#05070b">
+<title>PROJECT LIFE — Open World City</title>
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "./lib/three.module.js" } }
+</script>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="loading"><div class="load-inner"><h1>PROJECT LIFE</h1><div class="load-bar"><div></div></div><p>building the city…</p></div></div>
+
+<div id="hud">
+  <div id="hud-top-left">
+    <div id="money"><span class="money-ico">$</span><span id="money-val">$0</span></div>
+    <div id="tracker">
+      <div id="tracker-title">Missions</div>
+      <div id="tracker-obj">—</div>
+      <div id="tracker-time"><div id="tracker-time-bar"><div id="tracker-time-fill"></div></div><span>0:00</span></div>
+    </div>
+    <div id="slots">
+      <div class="slot" title="Coffee — speed boost"><span class="slot-key">1</span><span class="slot-dot"></span><span class="slot-count">0</span></div>
+      <div class="slot" title="Nitro — vehicle boost"><span class="slot-key">2</span><span class="slot-dot"></span><span class="slot-count">0</span></div>
+      <div class="slot" title="Repair kit"><span class="slot-key">3</span><span class="slot-dot"></span><span class="slot-count">0</span></div>
+    </div>
+    <div id="buff"></div>
+  </div>
+
+  <div id="hud-top-right">
+    <canvas id="minimap" width="200" height="200"></canvas>
+    <div id="hud-meta">
+      <span id="clock">09:00</span>
+      <span id="weather-label">Clear</span>
+      <span id="fps">60 FPS</span>
+    </div>
+  </div>
+
+  <div id="prompt"></div>
+  <div id="toasts"></div>
+
+  <div id="speedo">
+    <div id="speed-val">0</div>
+    <div class="speed-unit">km/h</div>
+    <div id="speed-gear">D</div>
+    <div id="dmg-wrap"><div id="dmg-bar"><div id="dmg-fill"></div></div><span>DMG</span></div>
+  </div>
+
+  <div id="vignette"></div>
+  <div id="banner"><div id="banner-title"></div><div id="banner-sub"></div></div>
+  <div id="hint">WASD move · Shift run · Space jump · E interact · I inventory · Esc pause · click mouse to look</div>
+</div>
+
+<div class="screen visible" id="screen-menu">
+  <div class="panel menu-panel">
+    <h1 class="game-title">PROJECT<span>LIFE</span></h1>
+    <p class="tagline">An open-world city in your browser</p>
+    <div class="menu-btns">
+      <button class="btn primary" id="btn-new">New Game</button>
+      <button class="btn" id="btn-continue">Continue</button>
+      <button class="btn" id="btn-settings">Settings</button>
+      <button class="btn" id="btn-help">How to Play</button>
+    </div>
+    <p class="menu-foot">Drive, walk, earn money, complete missions · progress auto-saves</p>
+  </div>
+</div>
+
+<div class="screen" id="screen-pause">
+  <div class="panel">
+    <h2>Paused</h2>
+    <div class="menu-btns">
+      <button class="btn primary" id="btn-resume">Resume</button>
+      <button class="btn" id="btn-save">Save Game</button>
+      <button class="btn" id="btn-pause-settings">Settings</button>
+      <button class="btn" id="btn-pause-help">How to Play</button>
+      <button class="btn danger" id="btn-quit">Quit to Main Menu</button>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="screen-settings">
+  <div class="panel">
+    <h2>Settings</h2>
+    <div class="set-row"><label>Quality</label>
+      <select id="sel-quality">
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
+    </div>
+    <div class="set-row"><label>Volume</label><input type="range" id="in-volume" min="0" max="1" step="0.05"><span class="set-val" id="in-volume-val"></span></div>
+    <div class="set-row"><label>Mouse sensitivity</label><input type="range" id="in-sens" min="0.3" max="2.5" step="0.05"><span class="set-val" id="in-sens-val"></span></div>
+    <div class="set-row"><label>Field of view</label><input type="range" id="in-fov" min="50" max="95" step="1"><span class="set-val" id="in-fov-val"></span></div>
+    <div class="set-row"><label>Invert Y axis</label><input type="checkbox" id="chk-invert"></div>
+    <div class="set-row"><label>Show FPS</label><input type="checkbox" id="chk-fps"></div>
+    <div class="menu-btns"><button class="btn primary" id="btn-back-settings">Back</button></div>
+  </div>
+</div>
+
+<div class="screen" id="screen-help">
+  <div class="panel wide">
+    <h2>How to Play</h2>
+    <div class="help-cols">
+      <div>
+        <h3>On foot</h3>
+        <ul>
+          <li><b>W A S D / Arrows</b> — move</li>
+          <li><b>Shift</b> — sprint</li>
+          <li><b>Space</b> — jump</li>
+          <li><b>Mouse</b> — camera (click to lock)</li>
+          <li><b>Wheel</b> — zoom</li>
+          <li><b>E</b> — interact / enter &amp; exit vehicles / start missions</li>
+          <li><b>1 / 2 / 3</b> — use Coffee / Nitro / Repair Kit</li>
+          <li><b>I or Tab</b> — inventory &amp; stats</li>
+          <li><b>Esc / P</b> — pause</li>
+        </ul>
+      </div>
+      <div>
+        <h3>In a vehicle</h3>
+        <ul>
+          <li><b>W / S</b> — accelerate / brake &amp; reverse</li>
+          <li><b>A / D</b> — steer</li>
+          <li><b>Mouse</b> — chase camera, <b>wheel</b> zoom</li>
+          <li><b>E</b> — exit vehicle / repair at garages ($200)</li>
+        </ul>
+        <h3>Goal</h3>
+        <ul>
+          <li>Collect <b>cash orbs</b> and items around the city</li>
+          <li>Start missions at the <b>cyan markers</b> (5 missions)</li>
+          <li>Garages repair your car · weather &amp; night affect driving</li>
+        </ul>
+        <h3>Touch</h3>
+        <ul><li>Left stick — move/steer · right side drag — camera · on-screen buttons</li></ul>
+      </div>
+    </div>
+    <div class="menu-btns"><button class="btn primary" id="btn-back-help">Back</button></div>
+  </div>
+</div>
+
+<div class="screen" id="screen-inventory">
+  <div class="panel wide">
+    <h2>Inventory &amp; Stats</h2>
+    <div id="inv-items"></div>
+    <div id="inv-stats"></div>
+    <div class="menu-btns"><button class="btn primary" id="btn-close-inv">Close</button></div>
+  </div>
+</div>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

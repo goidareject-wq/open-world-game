@@ -1,0 +1,14 @@
+{
+  "name": "project-life",
+  "version": "1.0.0",
+  "description": "3D open-world browser game built with Three.js",
+  "type": "module",
+  "scripts": {
+    "serve": "python3 -m http.server 8000",
+    "check": "node tests/check.mjs",
+    "test": "node tests/headless.mjs"
+  },
+  "dependencies": {
+    "three": "^0.160.0"
+  }
+}
